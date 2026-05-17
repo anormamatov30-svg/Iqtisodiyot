@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iqtisod Fani — Test Platformasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f5f0e8;
+    --white: #ffffff;
+    --gray: #8a8a8a;
+    --light: #f0ece3;
+    --correct: #2d7a4f;
+    --wrong: #a82020;
+    --shadow: 0 8px 40px rgba(10,22,40,0.18);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--navy);
+    color: var(--navy);
+    min-height: 100vh;
+  }
+
+  /* === WELCOME SCREEN === */
+  #welcome-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0a1628 60%, #1a2e50 100%);
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .badge {
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 20px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+    display: inline-block;
+  }
+  .welcome-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  .welcome-subtitle {
+    font-size: 15px;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+  .author-tag {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 40px;
+    font-style: italic;
+  }
+  .variant-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto 20px;
+  }
+  .variant-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(201,168,76,0.35);
+    color: var(--white);
+    padding: 22px 16px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.3px;
+  }
+  .variant-btn:hover {
+    background: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(201,168,76,0.3);
+  }
+  .variant-btn .vnum {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .variant-btn .vlabel { font-size: 12px; opacity: 0.7; font-weight: 400; }
+  .variant-btn:hover .vlabel { opacity: 0.9; }
+  .info-row {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .info-chip {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.5px;
+  }
+
+  /* === QUIZ SCREEN === */
+  #quiz-screen { display: none; min-height: 100vh; background: var(--light); }
+
+  /* Header */
+  .quiz-header {
+    background: var(--navy);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 18px rgba(0,0,0,0.25);
+  }
+  .quiz-header-left { display: flex; align-items: center; gap: 14px; }
+  .back-btn {
+    background: none;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.7);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Source Sans 3', sans-serif;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .quiz-title-sm {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--white);
+  }
+  .variant-badge {
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 20px;
+    letter-spacing: 1.5px;
+  }
+  .quiz-stats {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 18px; font-weight: 700; color: var(--gold-light); line-height: 1; }
+  .stat-lbl { font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 1px; }
+
+  /* Section tabs */
+  .section-tabs {
+    background: var(--navy);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    overflow-x: auto;
+    padding: 0 20px;
+    gap: 4px;
+    scrollbar-width: none;
+  }
+  .section-tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    padding: 12px 18px;
+    font-size: 12px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab-btn:hover:not(.active) { color: rgba(255,255,255,0.7); }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    background: rgba(0,0,0,0.08);
+    height: 4px;
+  }
+  .progress-bar-fill {
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    transition: width 0.4s;
+  }
+
+  /* Questions */
+  .questions-container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-heading .sec-num {
+    background: var(--navy);
+    color: var(--gold);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .question-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 16px rgba(10,22,40,0.08);
+    border: 1.5px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .question-card.answered-correct { border-color: var(--correct); }
+  .question-card.answered-wrong { border-color: var(--wrong); }
+
+  .q-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+  .q-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin-top: 2px;
+    min-width: 42px;
+  }
+  .q-text { font-size: 15px; color: var(--navy); font-weight: 600; line-height: 1.5; }
+
+  .options-grid { display: flex; flex-direction: column; gap: 9px; padding-left: 56px; }
+  .option-btn {
+    background: var(--light);
+    border: 1.5px solid #ddd8cc;
+    color: var(--navy);
+    padding: 11px 16px;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 14px;
+    font-family: 'Source Sans 3', sans-serif;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: #e8e3d8;
+    border-color: var(--gold);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.correct {
+    background: #d4edda;
+    border-color: var(--correct);
+    color: var(--correct);
+    font-weight: 600;
+  }
+  .option-btn.wrong {
+    background: #f8d7da;
+    border-color: var(--wrong);
+    color: var(--wrong);
+  }
+  .opt-letter {
+    font-weight: 700;
+    font-size: 12px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 50%;
+    background: rgba(10,22,40,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0;
+  }
+  .option-btn.correct .opt-letter { background: var(--correct); color: white; }
+  .option-btn.wrong .opt-letter { background: var(--wrong); color: white; }
+
+  .q-feedback {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    display: none;
+  }
+  .q-feedback.show { display: block; }
+  .q-feedback.correct-fb { background: #d4edda; color: var(--correct); }
+  .q-feedback.wrong-fb { background: #f8d7da; color: var(--wrong); }
+
+  /* Results section */
+  .result-panel {
+    background: var(--white);
+    border-radius: 18px;
+    padding: 32px;
+    margin: 32px 0;
+    text-align: center;
+    box-shadow: var(--shadow);
+    display: none;
+  }
+  .result-panel.show { display: block; }
+  .result-score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    font-weight: 900;
+    color: var(--navy);
+    line-height: 1;
+  }
+  .result-score-big span { color: var(--gold); }
+  .result-label { font-size: 16px; color: var(--gray); margin: 8px 0 24px; }
+  .result-grade {
+    display: inline-block;
+    padding: 8px 28px;
+    border-radius: 24px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 22px;
+  }
+  .grade-5 { background: #d4edda; color: var(--correct); }
+  .grade-4 { background: #d1ecf1; color: #0c5460; }
+  .grade-3 { background: #fff3cd; color: #856404; }
+  .grade-2 { background: #f8d7da; color: var(--wrong); }
+  .result-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .retry-btn, .home-btn {
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Source Sans 3', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .retry-btn { background: var(--navy); color: var(--white); }
+  .retry-btn:hover { background: #1a2e50; transform: translateY(-2px); }
+  .home-btn { background: var(--light); color: var(--navy); border: 1.5px solid #ddd; }
+  .home-btn:hover { background: #e8e3d8; }
+
+  .submit-section {
+    text-align: center;
+    padding: 24px 0 10px;
+  }
+  .submit-btn {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 15px 48px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Source Sans 3', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .submit-btn:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.35); }
+  .submit-btn:disabled { opacity: 0.5; cursor: default; }
+
+  @media (max-width: 600px) {
+    .options-grid { padding-left: 0; }
+    .q-header { flex-direction: column; gap: 6px; }
+    .quiz-stats { gap: 12px; }
+    .variant-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- WELCOME SCREEN -->
+<div id="welcome-screen">
+  <div class="badge">O'quv Testi Platformasi</div>
+  <h1 class="welcome-title">Iqtisodiyot Fani<br>Test Savollari</h1>
+  <p class="welcome-subtitle">Ishlab chiqarishni tashkil etish va rejalashtirish</p>
+  <p class="author-tag">Tuzuvchi: A.Normamatov</p>
+
+  <p style="color:rgba(255,255,255,0.55); font-size:14px; margin-bottom:20px;">Variantni tanlang:</p>
+  <div class="variant-grid">
+    <button class="variant-btn" onclick="startQuiz(1)">
+      <span class="vnum">I</span>
+      <span class="vlabel">Variant</span>
+    </button>
+    <button class="variant-btn" onclick="startQuiz(2)">
+      <span class="vnum">II</span>
+      <span class="vlabel">Variant</span>
+    </button>
+    <button class="variant-btn" onclick="startQuiz(3)">
+      <span class="vnum">III</span>
+      <span class="vlabel">Variant</span>
+    </button>
+    <button class="variant-btn" onclick="startQuiz(4)">
+      <span class="vnum">IV</span>
+      <span class="vlabel">Variant</span>
+    </button>
+  </div>
+  <div class="info-row">
+    <div class="info-chip">📋 25 savol / variant</div>
+    <div class="info-chip">🔀 Tasodifiy tartib</div>
+    <div class="info-chip">✅ To'g'ri javob ko'rsatiladi</div>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quiz-screen">
+  <div class="quiz-header">
+    <div class="quiz-header-left">
+      <button class="back-btn" onclick="goHome()">← Ortga</button>
+      <span class="quiz-title-sm">Iqtisodiyot Fani</span>
+      <span class="variant-badge" id="vbadge">I-VARIANT</span>
+    </div>
+    <div class="quiz-stats">
+      <div class="stat-item">
+        <div class="stat-num" id="stat-answered">0</div>
+        <div class="stat-lbl">JAVOBLANDI</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-correct">0</div>
+        <div class="stat-lbl">TO'G'RI</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-lbl">JAMI</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-tabs" id="section-tabs"></div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <div class="questions-container" id="questions-container"></div>
+</div>
+
+<script>
+// ============================================================
+// ALL QUESTIONS WITH CORRECT ANSWERS + DISTRACTORS
+// ============================================================
+const ALL_QUESTIONS = [
+  // SECTION 1: Fan asoslari va tahlil metodlari
+  {
+    section: 1,
+    q: "«Ishlab chiqarishni tashkil etish va rejalashtirish» fanining predmeti nima?",
+    correct: "Korxonalarda ishlab chiqarish jarayonlarini samarali tashkil etish va rejalashtirish usullari",
+    wrong: ["Davlat iqtisodiyotini boshqarish usullari", "Moliyaviy bozorlarni tahlil qilish metodlari", "Xalqaro savdo munosabatlarini o'rganish"]
+  },
+  {
+    section: 1,
+    q: "Moddiy boyliklar yaratiladigan asosiy bo'g'in qaysi?",
+    correct: "Ishlab chiqarish korxonasi",
+    wrong: ["Davlat byudjeti", "Bank tizimi", "Savdo markazi"]
+  },
+  {
+    section: 1,
+    q: "Har qanday ishlab chiqarish jarayoni uchun zarur bo'lgan uchta element qaysilar?",
+    correct: "Mehnat, mehnat predmetlari va mehnat qurollari",
+    wrong: ["Kapital, bozor va reklama", "Texnologiya, moliya va kadrlar", "Resurslar, narx va talab"]
+  },
+  {
+    section: 1,
+    q: "Mehnat predmetlari deganda nima tushuniladi?",
+    correct: "Mehnat jarayonida o'zgartiriluvchi xom ashyo va materiallar",
+    wrong: ["Ishchilar tomonidan foydalaniladigan asbob-uskunalar", "Mahsulot ishlab chiqarish uchun zarur bo'lgan binolar", "Korxona daromadini oshiruvchi omillar"]
+  },
+  {
+    section: 1,
+    q: "Ishlab chiqarish vositalari nimalardan tashkil topadi?",
+    correct: "Mehnat qurollari va mehnat predmetlaridan",
+    wrong: ["Faqat mehnat qurollaridan", "Pul mablag'lari va kredit resurslaridan", "Ish kuchi va boshqaruv tizimidan"]
+  },
+  {
+    section: 1,
+    q: "Ishlab chiqarish usuli nimalarning birligidan tashkil topadi?",
+    correct: "Ishlab chiqaruvchi kuchlar va ishlab chiqarish munosabatlarining birligidan",
+    wrong: ["Texnologiya va innovatsiyalarning birligidan", "Moliya va mehnat resurslarining birligidan", "Bozor va raqobatning birligidan"]
+  },
+  {
+    section: 1,
+    q: "Natural xo'jalik uchun qaysi xususiyat xarakterlidir?",
+    correct: "Mahsulot sotish uchun emas, o'z ehtiyoji uchun ishlab chiqariladi",
+    wrong: ["Mahsulot faqat eksportga yo'naltiriladi", "Ishlab chiqarish faqat zamonaviy texnologiyada amalga oshiriladi", "Barcha mahsulotlar bozorga chiqariladi"]
+  },
+  {
+    section: 1,
+    q: "Tovar xo'jaligi qaysi sharoitda shakllanadi?",
+    correct: "Ijtimoiy mehnat taqsimoti va xususiy mulk mavjud bo'lganda",
+    wrong: ["Faqat davlat mulki hukmron bo'lganda", "Monopoliyalar yo'q bo'lganda", "Narxlar nazorat ostida bo'lganda"]
+  },
+  {
+    section: 1,
+    q: "«Tashkil etish» tushunchasining mazmuni qanday ifodalanadi?",
+    correct: "Elementlarni tartibga solib, maqsadga erishish uchun birlashtirishdir",
+    wrong: ["Moliyaviy resurslarni taqsimlash jarayoni", "Bozor ulushini kengaytirish strategiyasi", "Xodimlarni ish bilan ta'minlash usuli"]
+  },
+  {
+    section: 1,
+    q: "Ish o'rinlariga xizmat ko'rsatishni tashkil etishning maqsadi nima?",
+    correct: "Ishchilarni zarur materiallar, asboblar va qurollar bilan uzluksiz ta'minlash",
+    wrong: ["Xodimlar sonini kamaytirish", "Mahsulot narxini oshirish", "Reklama xarajatlarini qisqartirish"]
+  },
+  {
+    section: 1,
+    q: "Sanoat korxonasi infratuzilmasining vazifasi nimadan iborat?",
+    correct: "Asosiy ishlab chiqarishga xizmat ko'rsatish va uni ta'minlash",
+    wrong: ["Faqat mahsulotni sotish va marketingdan iborat", "Korxona ustav fondini shakllantirish", "Soliqlarni to'lash tartibini tartibga solish"]
+  },
+  {
+    section: 1,
+    q: "Ishlab chiqarish samaradorligi qanday aniqlanadi?",
+    correct: "Olingan natija (foyda)ning ketkazilgan resurslar (xarajat)ga nisbati orqali",
+    wrong: ["Mahsulot hajmini ishchilar soniga bo'lish yo'li bilan", "Yillik aylanma mablag'ning ustav fondiga nisbati", "Eksport hajmini import hajmiga bo'lish orqali"]
+  },
+  {
+    section: 2,
+    q: "Korxonaning umumiy tuzilmasi (strukturasi) nimani ifodalaydi?",
+    correct: "Korxona tarkibidagi barcha bo'linmalar va ular o'rtasidagi munosabatlarni",
+    wrong: ["Faqat moliyaviy bo'limlar va ularning vazifalari", "Mahsulot assortimentini va narxlar ro'yxatini", "Xodimlarning ish haqi tizimini"]
+  },
+  {
+    section: 2,
+    q: "Asosiy sexlarning vazifasi nimadan iborat?",
+    correct: "Korxonaning asosiy mahsulotini to'g'ridan-to'g'ri ishlab chiqarish",
+    wrong: ["Yordamchi materiallar va ehtiyot qismlar tayyorlash", "Moliyaviy hisobotlarni yuritish", "Rahbarlar uchun ma'lumotlarni tahlil qilish"]
+  },
+  {
+    section: 2,
+    q: "Texnologik tuzilmali korxonalarda sexlar qanday tashkil qilinadi?",
+    correct: "Texnologik jarayon bosqichlari bo'yicha (to'qish, bo'yash, tikish va h.k.)",
+    wrong: ["Mahsulot turlari bo'yicha har bir sex mustaqil ishlaydi", "Faqat geografik joylashuv asosida", "Ishchilar malakasi bo'yicha guruhlarga ajratiladi"]
+  },
+  {
+    section: 2,
+    q: "Predmetli tuzilmaga asoslangan korxonalarda sexlar qanday ishlaydi?",
+    correct: "Har bir sex ma'lum turdagi mahsulot ishlab chiqarishga ixtisoslashadi",
+    wrong: ["Barcha sexlar bir xil mahsulot ishlab chiqaradi", "Sexlar geografik hududlar bo'yicha taqsimlanadi", "Sexlar faqat xizmat ko'rsatish bilan shug'ullanadi"]
+  },
+  {
+    section: 2,
+    q: "Aksiyadorlik jamiyatlarida yuqori boshqaruv organi qaysi?",
+    correct: "Aksiyadorlarning umumiy yig'ilishi",
+    wrong: ["Bosh direktor va uning o'rinbosarlari", "Kuzatuv kengashi a'zolari", "Taftish hay'ati raisi"]
+  },
+  {
+    section: 2,
+    q: "Kuzatuv kengashining asosiy vazifasi nima?",
+    correct: "Ijroiya organi faoliyatini nazorat qilish va yo'naltirishda ishtirok etish",
+    wrong: ["Kundalik moliyaviy operatsiyalarni bajarish", "Mahsulot sifatini bevosita tekshirish", "Ishchilarni yollash va ishdan bo'shatish"]
+  },
+  {
+    section: 2,
+    q: "Yangi korxonani tashkil qilishda birinchi bosqich nima?",
+    correct: "Biznes g'oyani shakllantirish va bozor tahlilini o'tkazish",
+    wrong: ["Darhol ishchilarni yollash", "Bank kreditini olish", "Ishlab chiqarish uskunalarini sotib olish"]
+  },
+  {
+    section: 2,
+    q: "Korxona qaysi paytdan boshlab huquqiy shaxs maqomiga ega bo'ladi?",
+    correct: "Davlat ro'yxatidan o'tgandan va tegishli guvohnoma olgandan so'ng",
+    wrong: ["Ustav fondini to'liq to'laganidan so'ng", "Birinchi mahsulotini ishlab chiqarganidan keyin", "Bank hisobvarag'ini ochgandan so'ng"]
+  },
+  {
+    section: 2,
+    q: "Korxonani qayta tashkil qilish shakllari qaysilar?",
+    correct: "Qo'shish, birlashtirish, ajratish, bo'lish va ayirboshlash",
+    wrong: ["Faqat birlashish va tarqatib yuborish", "Sotish va ijaraga berish", "Davlatlashtirish va milliylashtirish"]
+  },
+  {
+    section: 2,
+    q: "Ishlab chiqarish jarayoni nimalarning yig'indisidan iborat?",
+    correct: "Asosiy, yordamchi, xizmat ko'rsatuvchi va tabiiy jarayonlardan",
+    wrong: ["Faqat asosiy va yordamchi jarayonlardan", "Moliyaviy va buxgalteriya jarayonlaridan", "Marketing va sotish jarayonlaridan"]
+  },
+  {
+    section: 3,
+    q: "Yakka (yagona) ishlab chiqarish turi nima bilan tavsiflanadi?",
+    correct: "Tovarlar alohida buyurtmaga ko'ra, turli-tuman va oz miqdorda ishlab chiqariladi",
+    wrong: ["Bir xil mahsulot katta hajmda uzluksiz ishlab chiqariladi", "Faqat eksportga mo'ljallangan mahsulot tayyorlanadi", "Faqat standart mahsulotlar kichik partiyalarda chiqariladi"]
+  },
+  {
+    section: 3,
+    q: "Seriyali ishlab chiqarish turi qanday bo'ladi?",
+    correct: "Bir xil mahsulot muntazam takrorlanadigan partiyalarda (seriyalarda) chiqariladi",
+    wrong: ["Mahsulot faqat bir marta ishlab chiqariladi", "Uzluksiz va to'xtamasdan oqim usulida ishlab chiqariladi", "Har xil mahsulot alohida buyurtmalarga ko'ra tayyorlanadi"]
+  },
+  {
+    section: 3,
+    q: "Ommaviy ishlab chiqarish uchun nima xosdir?",
+    correct: "Tor nomenklaturali mahsulot katta hajmda uzluksiz ishlab chiqarilishi",
+    wrong: ["Har xil mahsulot kichik partiyalarda tayyorlanishi", "Mahsulot faqat alohida buyurtmalarga binoan ishlab chiqarilishi", "Keng assortimentda, lekin kam miqdorda ishlab chiqarish"]
+  },
+  {
+    section: 3,
+    q: "Potok metodi asosida ishlab chiqarish qanday tashkil etiladi?",
+    correct: "Operatsiyalar ketma-ket va ritmik tarzda, maxsus oqim liniyalarida bajariladi",
+    wrong: ["Har bir ishchi barcha operatsiyalarni mustaqil bajaradi", "Mahsulot ishlab chiqarish bosqichlar bo'yicha turli joylarda amalga oshiriladi", "Faqat bir necha ishchi ishtirokiligi bilan bajariladi"]
+  },
+  {
+    section: 3,
+    q: "Jismoniy shaxslarning xususiy mulkiga asoslangan korxona nima?",
+    correct: "Yakka tartibdagi tadbirkor korxonasi (individual korxona)",
+    wrong: ["Mas'uliyati cheklangan jamiyat (MCHJ)", "Aksiyadorlik jamiyati (AJ)", "Kooperativ (shirkat)"]
+  },
+  {
+    section: 3,
+    q: "Mas'uliyati cheklangan jamiyat (MCHJ) ishtirokchilari nima bilan javobgar?",
+    correct: "Faqat ustav fondiga qo'shgan hissalari miqdorida javobgar bo'ladilar",
+    wrong: ["Barcha shaxsiy mulklari bilan cheksiz javobgar bo'ladilar", "Faqat yillik daromadlari doirasida javobgar", "Hech qanday moliyaviy javobgarlik yuklanmaydi"]
+  },
+  {
+    section: 3,
+    q: "Kichik korxona deb qanday subyektlarga aytiladi?",
+    correct: "Ishchilar soni va yillik daromadi belgilangan chegaradan oshmaydigan tadbirkorlik subyektlari",
+    wrong: ["Faqat bir kishidan iborat bo'lgan korxonalar", "Faqat qishloq xo'jaligida faoliyat yurituvchi korxonalar", "Faqat xizmat ko'rsatish sohasidagi kichik firmalar"]
+  },
+  {
+    section: 3,
+    q: "Mulkni davlat tasarrufidan chiqarish nima?",
+    correct: "Davlat mulkini nodavlat sub'ektlarga (xususiy shaxslarga) o'tkazish jarayoni",
+    wrong: ["Xususiy mulkni davlat ixtiyoriga o'tkazish", "Korxonalarni xorijiy investorlar qo'liga berish", "Davlat korxonalarini bankrot deb e'lon qilish"]
+  },
+  {
+    section: 3,
+    q: "Ishlab chiqarish quvvati deganda nima tushuniladi?",
+    correct: "Korxonaning belgilangan vaqt ichida ishlab chiqara oladigan maksimal mahsulot hajmi",
+    wrong: ["Korxona qo'lida mavjud bo'lgan pul mablag'lari miqdori", "Ishchilarning umumiy ish saatlari yig'indisi", "Mahsulot sotish uchun mavjud bozor hajmi"]
+  },
+  {
+    section: 3,
+    q: "Amortizatsiya ajratmasi nima?",
+    correct: "Asosiy fondlarning eskirishi uchun mahsulot tannarxiga kiritiluvchi summalar",
+    wrong: ["Soliq to'lovlari uchun ajratiladigan mablag'lar", "Xodimlar uchun ijtimoiy sug'urta ajratmalari", "Zaxira fondiga o'tkaziladigan yillik to'lovlar"]
+  },
+  {
+    section: 3,
+    q: "Aylanma mablag'lar nimalarni o'z ichiga oladi?",
+    correct: "Ishlab chiqarish zaxiralari, tugallanmagan ishlab chiqarish va tayyor mahsulotni",
+    wrong: ["Faqat binolar va qurilmalarni", "Doimiy kapital va uzoq muddatli investitsiyalarni", "Bank kreditlari va obligatsiyalarni"]
+  },
+  {
+    section: 4,
+    q: "Sifat nazorati bo'limining (OTK) vazifasi?",
+    correct: "Mahsulot sifatini standartlar va texnik shartlarga muvofiqligini tekshirish",
+    wrong: ["Korxona moliyaviy hisobotlarini tekshirish", "Ishchilarning mehnat intizomini nazorat qilish", "Mahsulot narxini bozorga mos ravishda belgilash"]
+  },
+  {
+    section: 4,
+    q: "Ishlab chiqarishni rejalashtirishning maqsadi?",
+    correct: "Belgilangan vaqtda maqsadlarga erishish uchun resurslar va faoliyatni oldindan belgilab qo'yish",
+    wrong: ["Xodimlar sonini minimallashtirishni ta'minlash", "Faqat moliyaviy xarajatlarni hisoblash", "Raqobatchilar strategiyasini kuzatib borish"]
+  },
+  {
+    section: 4,
+    q: "Biznes-reja nima?",
+    correct: "Korxona maqsadlari, ularni amalga oshirish yo'llari va kutilayotgan natijalarni o'z ichiga olgan hujjat",
+    wrong: ["Faqat moliyaviy prognozlar yig'indisi", "Mahsulot sifatini tavsiflovchi standart", "Davlat organlariga taqdim etiluvchi soliq hisoboti"]
+  },
+  {
+    section: 4,
+    q: "Mahsulotni sertifikatlash nima?",
+    correct: "Mahsulotning belgilangan standartlar va talablarga muvofiqligini rasmiy tasdiqlash",
+    wrong: ["Mahsulot uchun patent olish jarayoni", "Mahsulotni davlat byudjetiga kiritish", "Mahsulot brendini ro'yxatdan o'tkazish"]
+  },
+  {
+    section: 4,
+    q: "Mehnat unumdorligi nima?",
+    correct: "Birlik vaqtda bir ishchi tomonidan ishlab chiqarilgan mahsulot miqdori",
+    wrong: ["Korxonaning umumiy yillik daromadi", "Xodimlarning o'rtacha ish haqi", "Ishlab chiqarish xarajatlarining umumiy summasi"]
+  },
+  {
+    section: 4,
+    q: "Asosiy fondlarning eskirish turlari qaysilar?",
+    correct: "Jismoniy eskirish va ma'naviy (moddiy bo'lmagan) eskirish",
+    wrong: ["Faqat vaqt o'tishi bilan eskirish", "Texnologik va moliyaviy eskirish", "Bozor va raqobat natijasidagi eskirish"]
+  },
+  {
+    section: 4,
+    q: "Ishlab chiqarish zaxiralari nima uchun kerak?",
+    correct: "Ishlab chiqarishni uzluksiz davom ettirishni ta'minlash uchun",
+    wrong: ["Foyda soliqlarini kamaytirish uchun", "Mahsulot narxini sun'iy oshirish uchun", "Ishchilar sonini ko'paytirish uchun"]
+  },
+  {
+    section: 4,
+    q: "Sanoatda mehnat intizomi nima?",
+    correct: "Belgilangan me'yorlar, qoidalar va tartibga qat'iy rioya qilish",
+    wrong: ["Ishchilarning dam olish vaqti tartibi", "Mahsulot sifatini nazorat qilish tizimi", "Ish haqi to'lash jadvali va tartibi"]
+  },
+  {
+    section: 4,
+    q: "O'zbekistonda tadbirkorlikka berilayotgan imtiyozlar qaysilar?",
+    correct: "Soliq imtiyozlari, kredit subsidiyalari va litsenziyalashtirish soddalashtirish",
+    wrong: ["Faqat moliyaviy jarima berilmaslik kafolati", "Davlat buyurtmalariga ustuvor haq to'lash", "Xorijiy bozorga chiqishda imtiyozlar yo'q"]
+  },
+  {
+    section: 4,
+    q: "Logistika va transport infratuzilmasining ahamiyati nimada?",
+    correct: "Mahsulotni ishlab chiqarish joyidan iste'molchiga tezkor va arzon yetkazib berishni ta'minlaydi",
+    wrong: ["Faqat xorijiy importni tartibga soladi", "Davlat byudjeti harajatlarini kamaytirishga yordam beradi", "Ishchilarning mehnat sharoitini yaxshilaydi"]
+  },
+  {
+    section: 4,
+    q: "Eksportga yo'naltirilgan ishlab chiqarish nima?",
+    correct: "Xalqaro bozor talablari asosida mahsulot ishlab chiqarish va chet elga sotish",
+    wrong: ["Faqat mahalliy bozor uchun mahsulot ishlab chiqarish", "Import qilinadigan tovarlarni almashtirish jarayoni", "Davlat buyurtmasi asosida ishlab chiqarish"]
+  },
+  {
+    section: 4,
+    q: "Innovatsion texnologiyalarni joriy etishdan maqsad?",
+    correct: "Mehnat unumdorligini oshirish, xarajatlarni kamaytirish va mahsulot sifatini yaxshilash",
+    wrong: ["Faqat reklama va marketing xarajatlarini qisqartirish", "Davlat subsidiyalarini ko'proq olish imkoniyati", "Ishchilar sonini minimallashtirishgina"]
+  }
+];
+
+// Seeds for variants (different shuffles)
+const VARIANT_SEEDS = [42, 137, 256, 911];
+
+// Seeded random
+function seededRandom(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 4294967296;
+  };
+}
+
+function shuffleWithSeed(arr, seed) {
+  const rand = seededRandom(seed);
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const SECTION_NAMES = {
+  1: "Fan asoslari",
+  2: "Korxona tuzilmasi",
+  3: "Ishlab chiqarish turlari",
+  4: "Nazorat va rejalashtirish"
+};
+
+let currentVariant = 1;
+let variantQuestions = [];
+let answeredCount = 0;
+let correctCount = 0;
+let totalQ = 0;
+
+function startQuiz(variant) {
+  currentVariant = variant;
+  answeredCount = 0;
+  correctCount = 0;
+
+  // Shuffle questions by section using variant seed
+  const seed = VARIANT_SEEDS[variant - 1];
+  const rand = seededRandom(seed * 7);
+
+  // For each section pick questions and shuffle options
+  const bySection = {1:[], 2:[], 3:[], 4:[]};
+  ALL_QUESTIONS.forEach(q => bySection[q.section].push(q));
+
+  variantQuestions = [];
+  [1,2,3,4].forEach(sec => {
+    // Shuffle questions within section
+    let qs = shuffleWithSeed(bySection[sec], seed + sec * 13);
+    // Take some (up to available)
+    qs = qs.slice(0, Math.min(qs.length, 7));
+    qs.forEach(q => variantQuestions.push({...q, section: sec}));
+  });
+
+  totalQ = variantQuestions.length;
+
+  document.getElementById('vbadge').textContent = ['I','II','III','IV'][variant-1] + '-VARIANT';
+  document.getElementById('stat-total').textContent = totalQ;
+  document.getElementById('stat-answered').textContent = 0;
+  document.getElementById('stat-correct').textContent = 0;
+
+  buildTabs();
+  buildQuestions(seed);
+  updateProgress();
+
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('section-tabs');
+  tabsEl.innerHTML = '';
+  [1,2,3,4].forEach(sec => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (sec === 1 ? ' active' : '');
+    btn.textContent = sec + '. ' + SECTION_NAMES[sec];
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const el = document.getElementById('section-' + sec);
+      if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function buildQuestions(seed) {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+
+  let qNum = 1;
+  [1,2,3,4].forEach(sec => {
+    const secQs = variantQuestions.filter(q => q.section === sec);
+    if (!secQs.length) return;
+
+    const secDiv = document.createElement('div');
+    secDiv.id = 'section-' + sec;
+
+    const heading = document.createElement('div');
+    heading.className = 'section-heading';
+    heading.innerHTML = `<span class="sec-num">${sec}</span>${SECTION_NAMES[sec]}`;
+    secDiv.appendChild(heading);
+
+    secQs.forEach((q, idx) => {
+      const globalIdx = variantQuestions.indexOf(q);
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = 'qcard-' + globalIdx;
+
+      // Shuffle options
+      const allOptions = [q.correct, ...q.wrong];
+      const shuffled = shuffleWithSeed(allOptions, seed + globalIdx * 31 + sec * 7);
+
+      const letters = ['A', 'B', 'C', 'D'];
+      const optHtml = shuffled.map((opt, i) =>
+        `<button class="option-btn" onclick="selectOption(${globalIdx}, this, ${opt === q.correct})">
+          <span class="opt-letter">${letters[i]}</span>${opt}
+        </button>`
+      ).join('');
+
+      card.innerHTML = `
+        <div class="q-header">
+          <span class="q-num">S-${qNum}</span>
+          <span class="q-text">${q.q}</span>
+        </div>
+        <div class="options-grid">${optHtml}</div>
+        <div class="q-feedback" id="fb-${globalIdx}"></div>
+      `;
+      secDiv.appendChild(card);
+      qNum++;
+    });
+
+    container.appendChild(secDiv);
+  });
+
+  // Submit + result
+  const submitSec = document.createElement('div');
+  submitSec.className = 'submit-section';
+  submitSec.innerHTML = `<button class="submit-btn" id="submit-btn" onclick="showResults()">Natijani ko'rish</button>`;
+  container.appendChild(submitSec);
+
+  const resultPanel = document.createElement('div');
+  resultPanel.className = 'result-panel';
+  resultPanel.id = 'result-panel';
+  container.appendChild(resultPanel);
+}
+
+function selectOption(qIdx, btn, isCorrect) {
+  const card = document.getElementById('qcard-' + qIdx);
+  if (card.classList.contains('answered-correct') || card.classList.contains('answered-wrong')) return;
+
+  // Disable all buttons in this card
+  card.querySelectorAll('.option-btn').forEach(b => {
+    b.disabled = true;
+    if (b === btn) {
+      b.classList.add(isCorrect ? 'correct' : 'wrong');
+    }
+    // Show correct answer
+    if (!isCorrect) {
+      const q = variantQuestions[qIdx];
+      if (b.textContent.trim().endsWith(q.correct) || b.innerHTML.includes(q.correct)) {
+        // find correct btn
+      }
+    }
+  });
+
+  // Highlight correct answer always
+  if (!isCorrect) {
+    card.querySelectorAll('.option-btn').forEach(b => {
+      const q = variantQuestions[qIdx];
+      if (b.innerText.includes(q.correct)) {
+        b.classList.add('correct');
+      }
+    });
+  }
+
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+  const fb = document.getElementById('fb-' + qIdx);
+  if (isCorrect) {
+    fb.className = 'q-feedback correct-fb show';
+    fb.textContent = '✓ To\'g\'ri javob!';
+    correctCount++;
+  } else {
+    fb.className = 'q-feedback wrong-fb show';
+    fb.textContent = '✗ Noto\'g\'ri. To\'g\'ri javob yuqorida yashil rangda ko\'rsatildi.';
+  }
+
+  answeredCount++;
+  document.getElementById('stat-answered').textContent = answeredCount;
+  document.getElementById('stat-correct').textContent = correctCount;
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = totalQ > 0 ? (answeredCount / totalQ) * 100 : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function showResults() {
+  const panel = document.getElementById('result-panel');
+  panel.classList.add('show');
+
+  const pct = Math.round((correctCount / totalQ) * 100);
+  let grade, gradeClass, msg;
+  if (pct >= 86) { grade = "5 (A'lo)"; gradeClass = "grade-5"; msg = "Ajoyib natija! 🎉"; }
+  else if (pct >= 71) { grade = "4 (Yaxshi)"; gradeClass = "grade-4"; msg = "Yaxshi natija! 👍"; }
+  else if (pct >= 56) { grade = "3 (Qoniqarli)"; gradeClass = "grade-3"; msg = "Yaxshilanish kerak!"; }
+  else { grade = "2 (Qoniqarsiz)"; gradeClass = "grade-2"; msg = "Ko'proq o'qish kerak!"; }
+
+  panel.innerHTML = `
+    <div class="result-score-big">${correctCount}<span>/${totalQ}</span></div>
+    <div class="result-label">${pct}% to'g'ri javoblar · ${msg}</div>
+    <div class="result-grade ${gradeClass}">${grade}</div>
+    <p style="color:#888; font-size:13px; margin-bottom:22px;">
+      To'g'ri: ${correctCount} · Noto'g'ri: ${totalQ - correctCount} · Javob berilmagan: ${totalQ - answeredCount}
+    </p>
+    <div class="result-btns">
+      <button class="retry-btn" onclick="startQuiz(${currentVariant})">🔄 Qaytadan urinish</button>
+      <button class="home-btn" onclick="goHome()">🏠 Bosh sahifa</button>
+    </div>
+  `;
+  panel.scrollIntoView({behavior:'smooth'});
+}
+
+function goHome() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('welcome-screen').style.display = 'flex';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
